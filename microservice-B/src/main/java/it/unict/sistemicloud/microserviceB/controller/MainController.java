@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 
+import it.unict.sistemicloud.microserviceB.DTO.Utente;
 import it.unict.sistemicloud.microserviceB.DTO.Cliente;
 import it.unict.sistemicloud.microserviceB.DTO.Numero;
 import it.unict.sistemicloud.microserviceB.DTO.Ordine;
+import it.unict.sistemicloud.microserviceB.DTO.Packet;
 import it.unict.sistemicloud.microserviceB.DTO.Pizza;
 import it.unict.sistemicloud.microserviceB.DTO.Richiesta;
 import it.unict.sistemicloud.microserviceB.DTO.Tokens;
@@ -87,12 +89,30 @@ class Input{
 @RestController
 public class MainController {
 	
-	boolean accesso = false;
-	
 	
 	@GetMapping(value = "/hello", produces = MediaType.APPLICATION_JSON_VALUE)
     public String hello(){
 		System.out.println("Ciao");
     	return "Hello im microserver B";
-	}  
+	}
+	
+	
+	@GetMapping(value = "/getA", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Packet ricevi() throws IOException{
+			String jsonResult = doGetRequest("http://localhost:8081/associate");
+			Packet packet = new Gson().fromJson(jsonResult, Packet.class);
+			return packet;
+	}
+	
+	
+	OkHttpClient client = new OkHttpClient();
+    // code request code here
+    String doGetRequest(String url) throws IOException {
+      Request request = new Request.Builder()
+          .url(url)
+          .build();
+
+      Response response = client.newCall(request).execute();
+      return response.body().string();
+    }
 }

@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 
 import it.unict.sistemicloud.microserviceC.controller.Input;
 import it.unict.sistemicloud.microserviceC.DTO.Transazione;
+import it.unict.sistemicloud.microserviceC.DTO.Packet;
 import it.unict.sistemicloud.microserviceC.DTO.Cliente;
 import it.unict.sistemicloud.microserviceC.DTO.Numero;
 import it.unict.sistemicloud.microserviceC.DTO.Ordine;
@@ -111,6 +112,19 @@ public class MainController {
     public String hello(){
 		System.out.println("Ciao");
     	return "Hello im microserver C";
+	}
+	
+	
+	@GetMapping(value = "/getB", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String ricevi(){
+		try {
+			String jsonResult = doGetRequest("http://localhost:8082/getA");
+			Packet packet = new Gson().fromJson(jsonResult, Packet.class);
+			return packet.nome;
+	  } catch (IOException e) {
+    	   e.printStackTrace();
+		return "Non riesco a contattare il microservice C";
+      }
 	}
     
     

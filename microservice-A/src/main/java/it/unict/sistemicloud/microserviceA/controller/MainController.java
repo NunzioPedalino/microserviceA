@@ -23,9 +23,12 @@ import com.google.gson.Gson;
 
 import it.unict.sistemicloud.microserviceA.DTO.Cliente;
 import it.unict.sistemicloud.microserviceA.DTO.Numero;
+import it.unict.sistemicloud.microserviceA.DTO.Packet;
 import it.unict.sistemicloud.microserviceA.DTO.Richiesta;
 import it.unict.sistemicloud.microserviceA.controller.Input;
+import it.unict.sistemicloud.microserviceA.DTO.Tokens;
 import it.unict.sistemicloud.microserviceA.DTO.Transazione;
+import it.unict.sistemicloud.microserviceA.DTO.Utente;
 import okhttp3.*;
 import javax.swing.*;
 import java.awt.*;
@@ -123,6 +126,46 @@ public class MainController {
     	return "Hello im microserver A. This is API GATEWAY";
     }
 	
+	@GetMapping(value = "/utente", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Utente registrautente() {
+		Utente utente = new Utente();
+		utente.nome = "Nunzio";
+		utente.cognome = "Pedalino";
+		return utente;
+    }
+	
+	
+	@GetMapping(value = "/associate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Packet packet() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8081/utente");
+				Utente utente = new Gson().fromJson(jsonResult, Utente.class);
+				System.out.println(utente.nome);
+				System.out.println(utente.cognome);
+				
+				String jsonResult1 = doGetRequest("http://localhost:8081/createTrackid");
+				Transazione transazione = new Gson().fromJson(jsonResult1, Transazione.class);
+				System.out.println(transazione.id_transazione);
+				System.out.println(transazione.microservizio);
+				
+				String jsonResult2 = doGetRequest("http://localhost:8081/createToken");
+				Tokens token = new Gson().fromJson(jsonResult2, Tokens.class);
+				System.out.println(token.token_id);
+				
+				Packet packet = new Packet();
+				packet.nome = utente.nome;
+				packet.cognome = utente.cognome;
+				packet.id_transazione = transazione.id_transazione;
+				packet.microservizio = transazione.microservizio;
+				packet.token = token.token_id;
+				
+				//String completa = packet.nome+" "+packet.cognome+" "+packet.id_transazione+" "+packet.microservizio+" "+packet.token;
+				//return completa;
+				
+				//return packet.nome+" "+packet.cognome+"    "+packet.id_transazione+" "+packet.microservizio;
+				return packet;
+    }
+	
+	
 	String tracciamento="";
 	@GetMapping(value = "/createTrackid", produces = MediaType.APPLICATION_JSON_VALUE)
     public Transazione track_id(String sb) {
@@ -133,6 +176,26 @@ public class MainController {
     	tracciamento += transazione.tracciamento+","+'\n';
     	System.out.println(tracciamento);
     	return transazione;
+    }
+	
+	
+	@GetMapping(value = "/createToken", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Tokens create() {
+		Tokens token = new Tokens();
+		token.token_id = "TheTokenStar2020";
+		return token;
+	}
+	
+	
+	OkHttpClient client = new OkHttpClient();
+    // code request code here
+    String doGetRequest(String url) throws IOException {
+      Request request = new Request.Builder()
+          .url(url)
+          .build();
+
+      Response response = client.newCall(request).execute();
+      return response.body().string();
     }
 
 }

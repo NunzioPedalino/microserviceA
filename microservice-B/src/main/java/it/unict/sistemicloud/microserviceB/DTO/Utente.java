@@ -1,4 +1,4 @@
-package it.unict.sistemicloud.microserviceA.DTO;
+package it.unict.sistemicloud.microserviceB.DTO;
 
 import java.io.Serializable;
 
