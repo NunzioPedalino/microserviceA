@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.http.HttpClient;
 import java.security.SecureRandom;
 
 import org.springframework.http.MediaType;
@@ -33,6 +34,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import java.util.Scanner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class Input{
     
@@ -89,6 +93,9 @@ class Input{
 @RestController
 public class MainController {
 	
+	private HttpClient httpClient;
+    
+    Logger logger = LoggerFactory.getLogger(MainController.class);
 	
 	@GetMapping(value = "/hello", produces = MediaType.APPLICATION_JSON_VALUE)
     public String hello(){
@@ -101,8 +108,88 @@ public class MainController {
     public Packet ricevi() throws IOException{
 			String jsonResult = doGetRequest("http://localhost:8081/associate");
 			Packet packet = new Gson().fromJson(jsonResult, Packet.class);
+			packet.microservizio +="B";
+			/*
+			System.out.println("Nome : "+packet.nome);
+			System.out.println("Cognome : "+packet.cognome);
+			System.out.println("Id transazione : "+packet.id_transazione);
+			System.out.println("Microservizio : "+packet.microservizio);
+			System.out.println("Token : "+packet.token);
+			*/
+			logger.info("Nome : "+packet.nome);
+			logger.info("Cognome : "+packet.cognome);
+			logger.info("Id transazione : "+packet.id_transazione);
+			logger.info("Microservizio : "+packet.microservizio);
+			logger.info("Token : "+packet.token);
 			return packet;
 	}
+	
+	@GetMapping(value = "/TokenValid", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Packet riceciC() throws IOException{
+			String jsonResult = doGetRequest("http://localhost:8083/requestValidToken");
+			Packet packet = new Gson().fromJson(jsonResult, Packet.class);
+			packet.microservizio +="B";
+			/*
+			System.out.println("Nome : "+packet.nome);
+			System.out.println("Cognome : "+packet.cognome);
+			System.out.println("Id transazione : "+packet.id_transazione);
+			System.out.println("Microservizio : "+packet.microservizio);
+			System.out.println("Token : "+packet.token);
+			*/
+			logger.info("Nome : "+packet.nome);
+			logger.info("Cognome : "+packet.cognome);
+			logger.info("Id transazione : "+packet.id_transazione);
+			logger.info("Microservizio : "+packet.microservizio);
+			logger.info("Token : "+packet.token);
+			return packet;
+	}
+	
+	
+    @GetMapping(value = "/elencoordini", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Ordine[] elencoordini() throws IOException {
+	    	System.out.println("Elenco Ordini");
+	    	FileReader file = new FileReader("Ordine.txt");
+	    	BufferedReader lettore = new BufferedReader(file);
+	    	int cont = 0;
+	    	String riga = "";
+	    	String ele = "";
+	    	while(riga != null) {
+	    			riga = lettore.readLine();
+	    			//System.out.println(riga);
+	    			cont++;
+	    			ele += riga;
+	    	}
+	    	int righe = cont-1;
+	    	//System.out.println("Le righe sono: "+righe);
+	    	//System.out.println(ele); 	
+	    	String[] x = null;
+	    	if(ele.contains(";")) {
+	    		x = ele.split(";");
+	    		for(int i=0;i<righe*3;i++) {
+	        		//System.out.println(x[i]);
+	        	}
+	    	}
+	    	Ordine[] ordine = new Ordine[righe];
+	    	int j=0;
+	    	for(int i=0;i<ordine.length;i++) {
+	    		Ordine o = new Ordine();
+	    		o.nome = x[j];
+	    		o.cognome = x[j+1];
+	    		o.ordine = x[j+2];
+	    		ordine[i] = o;
+	    		j = j+3;
+	    	}
+	    	for(int i=0;i<ordine.length;i++) {
+	    		Ordine o = ordine[i];
+	    		System.out.println("Nome:"+ o.nome);
+	    		System.out.println("Cognome :"+ o.cognome);
+	    		System.out.println("Ordine:"+ o.ordine);
+	    	}
+	    	
+	    	file.close();
+	    	
+	    	return ordine;
+    }
 	
 	
 	OkHttpClient client = new OkHttpClient();

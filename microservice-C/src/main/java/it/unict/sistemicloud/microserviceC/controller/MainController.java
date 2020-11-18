@@ -33,6 +33,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class Input{
     
     private static BufferedReader reader = 
@@ -88,6 +91,10 @@ class Input{
 @RestController
 public class MainController {
 	
+	
+	Logger logger = LoggerFactory.getLogger(MainController.class);
+	
+	
 	boolean accesso = false;
 	
 	public String id_transazione() {
@@ -115,19 +122,39 @@ public class MainController {
 	}
 	
 	
-	@GetMapping(value = "/getB", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String ricevi(){
-		try {
+	@GetMapping(value = "/requestValidToken", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Packet ricevi() throws IOException{
 			String jsonResult = doGetRequest("http://localhost:8082/getA");
 			Packet packet = new Gson().fromJson(jsonResult, Packet.class);
-			return packet.nome;
-	  } catch (IOException e) {
-    	   e.printStackTrace();
-		return "Non riesco a contattare il microservice C";
-      }
+			packet.microservizio +="C";
+			/*
+			System.out.println("Nome : "+packet.nome);
+			System.out.println("Cognome : "+packet.cognome);
+			System.out.println("Id transazione : "+packet.id_transazione);
+			System.out.println("Microservizio : "+packet.microservizio);
+			System.out.println("Token : "+packet.token);
+			*/
+			logger.info("Nome : "+packet.nome);
+			logger.info("Cognome : "+packet.cognome);
+			logger.info("Id transazione : "+packet.id_transazione);
+			logger.info("Microservizio : "+packet.microservizio);
+			logger.info("Token : "+packet.token);
+			String token = "TheTokenStar2020";
+			if(packet.token.equals(token)) {
+				String t = "Il token è corretto";
+				//System.out.print(t);
+				logger.info(t);
+				return packet;
+			}
+			else {
+				String t = "Il token non è corretto";
+				//System.out.print(t);
+				logger.info(t);
+				return null;
+			}
 	}
     
-    
+    /*
     @GetMapping(value = "/createToken", produces = MediaType.APPLICATION_JSON_VALUE)
     public Tokens create() {
     	try {
@@ -162,6 +189,7 @@ public class MainController {
     		return null;
 		}
     }
+    */
     
     OkHttpClient client = new OkHttpClient();
     // code request code here

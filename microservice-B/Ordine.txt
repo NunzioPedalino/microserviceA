@@ -1,0 +1,3 @@
+Nunzio;Pedalino;rucola,capricciosa;
+Davide;Tumminello;capricciosa,diavola,siciliana;
+Simone;Pidatella;partenopea,romana,diavola;

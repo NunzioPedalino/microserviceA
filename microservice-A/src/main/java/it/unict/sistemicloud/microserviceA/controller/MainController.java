@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import it.unict.sistemicloud.microserviceA.DTO.Cliente;
 import it.unict.sistemicloud.microserviceA.DTO.Numero;
 import it.unict.sistemicloud.microserviceA.DTO.Packet;
+import it.unict.sistemicloud.microserviceA.DTO.Pizza;
 import it.unict.sistemicloud.microserviceA.DTO.Richiesta;
 import it.unict.sistemicloud.microserviceA.controller.Input;
 import it.unict.sistemicloud.microserviceA.DTO.Tokens;
@@ -40,6 +41,9 @@ import java.io.PrintWriter;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 class Input{
@@ -102,6 +106,8 @@ public class MainController {
 
     private HttpClient httpClient;
     
+    Logger logger = LoggerFactory.getLogger(MainController.class);
+    
     
     public String id_transazione() {
     	String lower = "abcdefghijklmnopqrstuvwxyz";
@@ -123,6 +129,7 @@ public class MainController {
 	@GetMapping(value = "/hello", produces = MediaType.APPLICATION_JSON_VALUE)
     public String hello() {
 		System.out.println("Ciao");
+		logger.info("Ciao");
     	return "Hello im microserver A. This is API GATEWAY";
     }
 	
@@ -139,17 +146,26 @@ public class MainController {
     public Packet packet() throws IOException {
 				String jsonResult = doGetRequest("http://localhost:8081/utente");
 				Utente utente = new Gson().fromJson(jsonResult, Utente.class);
-				System.out.println(utente.nome);
-				System.out.println(utente.cognome);
+				/*
+				System.out.println("Nome: "+ utente.nome);
+				System.out.println("Cognome: "+utente.cognome);
+				*/
+				logger.info("Nome: "+ utente.nome);
+				logger.info("Cognome: "+utente.cognome);
 				
 				String jsonResult1 = doGetRequest("http://localhost:8081/createTrackid");
 				Transazione transazione = new Gson().fromJson(jsonResult1, Transazione.class);
-				System.out.println(transazione.id_transazione);
-				System.out.println(transazione.microservizio);
+				/*
+				System.out.println("Id transazione : "+transazione.id_transazione);
+				System.out.println("Microservizio : "+transazione.microservizio);
+				*/
+				logger.info("Id transazione : "+transazione.id_transazione);
+				logger.info("Microservizio : "+transazione.microservizio);
 				
 				String jsonResult2 = doGetRequest("http://localhost:8081/createToken");
 				Tokens token = new Gson().fromJson(jsonResult2, Tokens.class);
-				System.out.println(token.token_id);
+				//System.out.println("token : "+token.token_id);
+				logger.info("token : "+token.token_id);
 				
 				Packet packet = new Packet();
 				packet.nome = utente.nome;
@@ -157,24 +173,16 @@ public class MainController {
 				packet.id_transazione = transazione.id_transazione;
 				packet.microservizio = transazione.microservizio;
 				packet.token = token.token_id;
-				
-				//String completa = packet.nome+" "+packet.cognome+" "+packet.id_transazione+" "+packet.microservizio+" "+packet.token;
-				//return completa;
-				
-				//return packet.nome+" "+packet.cognome+"    "+packet.id_transazione+" "+packet.microservizio;
 				return packet;
     }
 	
 	
-	String tracciamento="";
+	
 	@GetMapping(value = "/createTrackid", produces = MediaType.APPLICATION_JSON_VALUE)
     public Transazione track_id(String sb) {
 		Transazione transazione = new Transazione();
     	transazione.id_transazione = id_transazione();
     	transazione.microservizio = "A";
-    	transazione.tracciamento = "["+transazione.id_transazione+" , "+transazione.microservizio+" ]";
-    	tracciamento += transazione.tracciamento+","+'\n';
-    	System.out.println(tracciamento);
     	return transazione;
     }
 	
@@ -185,6 +193,95 @@ public class MainController {
 		token.token_id = "TheTokenStar2020";
 		return token;
 	}
+	
+	
+	
+	@GetMapping(value = "/getDonepizza", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDonepizza() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getonepizza");
+				String a = jsonResult;
+				return a;
+	}
+	
+	
+	
+	
+	
+	@GetMapping(value = "/getDconto", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDconto() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getconto");
+				String a = jsonResult;
+				return a;
+	}
+	
+	
+	
+	
+	
+	@GetMapping(value = "/getDclienti", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDclienti() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getclienti");
+				return jsonResult;
+	}
+	
+	
+	
+	@GetMapping(value = "/getDpizze", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDpizze() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getpizze");
+				return jsonResult;
+	}
+	
+	
+	
+	
+	@GetMapping(value = "/getDordini", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDordine() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getordine");
+				return jsonResult;
+	}
+	
+	
+	
+	/*
+	@GetMapping(value = "/getDclienti2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDclienti2() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getclienti2");
+				return jsonResult;
+	}
+	
+	
+	@GetMapping(value = "/getDpizze2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDpizze2() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getpizze2");
+				return jsonResult;
+	}
+	
+	
+	@GetMapping(value = "/getDordini2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDordine2() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getordine2");
+				return jsonResult;
+	}
+	
+	@GetMapping(value = "/getDconto2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDconto2() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getconto2");
+				//String a = new Gson().fromJson(jsonResult, String.class);
+				String a = jsonResult;
+				return a;
+	}
+	
+	
+	@GetMapping(value = "/getDonepizza2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getDonepizza2() throws IOException {
+				String jsonResult = doGetRequest("http://localhost:8084/getonepizza2");
+				//String a = new Gson().fromJson(jsonResult, String.class);
+				String a = jsonResult;
+				return a;
+	}
+	 */
+	
 	
 	
 	OkHttpClient client = new OkHttpClient();
